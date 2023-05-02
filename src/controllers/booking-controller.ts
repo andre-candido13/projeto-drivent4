@@ -28,7 +28,9 @@ export async function postBooking ( req: AuthenticatedRequest, res: Response, ne
 try {
 
     const booking = await bookingService.postBooking(roomId, userId)
-    return res.status(httpStatus.OK).send({ bookingId: booking })
+    if (!booking) return res.sendStatus(httpStatus.NOT_FOUND);
+
+    return res.status(httpStatus.OK).send(booking)
 
 } catch (error) {
     next(error)
@@ -46,8 +48,9 @@ if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
 try{
 
     const updated = await bookingService.putBooking(userId, Number(bookingId),roomId)
+    if (updated) return res.sendStatus(httpStatus.NOT_FOUND);
 
-    return res.sendStatus(httpStatus.OK).send({bookingId: updated})
+    return res.sendStatus(httpStatus.OK).send(updated)
 
 } catch (error) {
     next(error)

@@ -13,12 +13,6 @@ async function getBooking (userId: number){
     })
 }
 
-async function numberOfRooms(roomId: number) {
-    
-    return prisma.booking.count({
-        where: { roomId }
-    })
-}
 
 async function postBooking (roomId: number, userId: number) {
 
@@ -28,39 +22,47 @@ async function postBooking (roomId: number, userId: number) {
 
 }
 
-async function findRoom (userId: number, bookingId: number){
+async function findRoom (roomId: number){
 
-    return prisma.booking.findFirst({
+    return prisma.room.findFirst({
         where: {
-            userId,
-            id: bookingId,
+            id: roomId,
+          },
+          include: {
+            Booking: true,
           },
         });
+    }
 
-}
+    async function Booking(bookingId: number, userId: number) {
+        return prisma.booking.findFirst({
+          where: {
+            id: bookingId,
+            userId,
+          },
+        });
+      }
 
-async function updateBooking(roomId: number, bookingId: number, userId: number) {
 
-    const updated = await prisma.booking.update({
-      where: {
-        id: bookingId,
-      },
-      data: {
-        roomId,
-        userId,
-      },
-    });
-  
-    return updated.id;
-  }
+    async function updateBooking (userId: number, roomId: number, bookingId: number) {
+        return prisma.booking.update({
+          where: {
+            id: bookingId,
+          },
+          data: {
+            userId,
+            roomId,
+          },
+        });
+      }
 
 
 const getBookingRepository = {
     getBooking, 
     postBooking,
     findRoom,
-    numberOfRooms,
-    updateBooking
+    updateBooking,
+    Booking
 }
 
 export default getBookingRepository
