@@ -2,6 +2,7 @@ import { forbiddenError, notFoundError } from "@/errors"
 import getBookingRepository from "@/repositories/booking-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
+import { Booking } from "@prisma/client";
 
 
 //async function viabilityOfRooms (userId: number){
@@ -19,7 +20,7 @@ import ticketsRepository from "@/repositories/tickets-repository";
   //}
 
 
-async function getBooking (userId: number){
+async function getBooking (userId: number): Promise<Booking>{
 
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
   if (!enrollment) {
@@ -52,12 +53,16 @@ async function postBooking (userId: number, roomId: number) {
   }
 
 const room = await getBookingRepository.findRoom(roomId);
-if (!room) throw notFoundError();
+if (!room) {
+  throw notFoundError()}
 
-if (room.capacity <= room.Booking.length) throw forbiddenError();
+if (room.capacity <= room.Booking.length) {
+
+ throw forbiddenError() }
 
 const booking = await getBookingRepository.postBooking(userId, roomId);
-if (!booking) throw notFoundError();
+if (!booking) {
+  throw notFoundError()}
 
 const bookingId = { bookingId: booking.id };
 
@@ -83,10 +88,13 @@ const room = await getBookingRepository.findRoom(roomId)
 
 if (!room) throw notFoundError()
 
-if (room.capacity <= room.Booking.length) throw forbiddenError();
+if (room.capacity <= room.Booking.length) {
+  throw forbiddenError()}
 
 const booking = await getBookingRepository.Booking(userId, bookingId);
-if (!booking) throw forbiddenError();
+if (!booking) {
+
+ throw forbiddenError()}
 
 const response = { bookingId: booking.id };
 
@@ -98,7 +106,7 @@ return response
 const bookingService = {
     getBooking,
     postBooking,
-    //viabilityOfRooms,
+    //viabilityOfRoom s,
     putBooking
 }
 

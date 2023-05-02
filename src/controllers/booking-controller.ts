@@ -6,7 +6,7 @@ import { Response } from "express";
 
 
 
-export async function getBooking ( req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export async function getBooking ( req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response> {
 
 const { userId } = req
 
@@ -19,7 +19,7 @@ next(error)
 }
 }
 
-export async function postBooking ( req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export async function postBooking ( req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response> {
     const { userId } = req
     const { roomId } = req.body
 
@@ -39,7 +39,7 @@ try {
 }
 }
 
-export async function putBooking (req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export async function putBooking (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response> {
 
 const { userId } = req
 const { roomId } = req.body
