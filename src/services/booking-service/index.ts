@@ -1,7 +1,11 @@
-import { BookingError, notFoundError } from "@/errors"
+import { forbiddenError, notFoundError } from "@/errors"
 import getBookingRepository from "@/repositories/booking-repository";
-import hotelsService from "../hotels-service";
 import { Room } from "@prisma/client"
+import enrollmentRepository from "@/repositories/enrollment-repository";
+import ticketsRepository from "@/repositories/tickets-repository";
+import hotelRepository from "@/repositories/hotel-repository";
+
+
 
 
 async function getBooking (userId: number): Promise<{Room: Room, id: number}> {
@@ -13,48 +17,53 @@ if (!booking) throw notFoundError()
 return booking;
 }
 
-async function viabilityOfRooms (roomId: number): Promise<Room> {
+async function viabilityOfRooms (userId: number){
 
-const findRooms = await getBookingRepository.findRoom(roomId)
+    const enrollment = await enrollmentRepository.findEnrollment(userId);
+    if (!enrollment) throw notFoundError();
+  
+    const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+    if (!ticket) throw notFoundError();
+  
+    if (!ticket.TicketType.includesHotel || ticket.status !== 'PAID' || ticket.TicketType.isRemote)
+      throw forbiddenError();
+  
+    return;
+  }
 
-if(!findRooms) throw notFoundError()
-
-const qtyOfBookings = await getBookingRepository.numberOfRooms(roomId)
-
-if (qtyOfBookings >= findRooms.capacity) throw BookingError()
-
-return findRooms;
 
 
-}
 
 async function postBooking (userId: number, roomId: number) {
 
-await hotelsService.listHotels(userId)
+await viabilityOfRooms(userId)
 
-await viabilityOfRooms(roomId)
+const returnBooking = await hotelRepository.getRoomWithBookings(roomId)
+if (!returnBooking) throw notFoundError
 
-const returnBooking = await getBookingRepository.postBooking(userId, roomId)
+if (returnBooking.capacity <= returnBooking.Booking.length) throw forbiddenError();
 
-return returnBooking;
+const booking = await getBookingRepository.postBooking(userId, roomId);
+
+return booking;
 
 }
 
 
-async function putBooking (userId: number, bookingId: string, roomId: number) {
+async function putBooking (userId: number, roomId: number, bookingId: number) {
 
-const idBooking = Number(bookingId)
+await viabilityOfRooms(userId)
 
-await viabilityOfRooms(roomId)
+const user = await hotelRepository.getRoomWithBookings(roomId)
 
-const user = getBookingRepository.getBooking(userId)
+if (!user) throw notFoundError()
 
-if (!user) throw BookingError()
+if (user.capacity <= user.Booking.length) throw forbiddenError();
 
-return await getBookingRepository.updateBooking(roomId, idBooking, userId)
+const booking = await getBookingRepository.findRoom(userId, bookingId);
+if (!booking) throw forbiddenError();
 
-
-
+return await getBookingRepository.updateBooking(userId, bookingId, roomId);
 }
 
 

@@ -11,7 +11,6 @@ export async function getBooking ( req: AuthenticatedRequest, res: Response, nex
 const { userId } = req
 
 try {
-
     const booking = await bookingService.getBooking(userId)
     return res.status(httpStatus.OK).send(booking)
 
@@ -28,7 +27,7 @@ export async function postBooking ( req: AuthenticatedRequest, res: Response, ne
 
 try {
 
-    const booking = await bookingService.postBooking(parseFloat(roomId), userId)
+    const booking = await bookingService.postBooking(roomId, userId)
     return res.status(httpStatus.OK).send({ bookingId: booking })
 
 } catch (error) {
@@ -46,7 +45,7 @@ if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
 
 try{
 
-    const updated = await bookingService.putBooking(userId, bookingId, parseInt(roomId))
+    const updated = await bookingService.putBooking(userId, Number(bookingId),roomId)
 
     return res.sendStatus(httpStatus.OK).send({bookingId: updated})
 

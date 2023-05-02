@@ -2,13 +2,12 @@ import { prisma } from '@/config'
 import { Room } from '@prisma/client';
 
 
-async function getBooking (userId: number): Promise<{ Room: Room; id: number }> {
+async function getBooking (userId: number){
 
     return prisma.booking.findFirst({
         where: {
             userId},
-        select: {
-            id: true,
+        include: {
             Room: true
         }
     })
@@ -29,16 +28,18 @@ async function postBooking (roomId: number, userId: number) {
 
 }
 
-async function findRoom (roomId: number): Promise <Room>{
+async function findRoom (userId: number, bookingId: number){
 
-    return prisma.room.findFirst({
+    return prisma.booking.findFirst({
         where: {
-        id: roomId}
-    })
+            userId,
+            id: bookingId,
+          },
+        });
 
 }
 
-async function updateBooking(roomId: number, bookingId: number, userId: number): Promise<number> {
+async function updateBooking(roomId: number, bookingId: number, userId: number) {
 
     const updated = await prisma.booking.update({
       where: {
