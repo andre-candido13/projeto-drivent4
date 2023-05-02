@@ -24,6 +24,8 @@ export async function postBooking ( req: AuthenticatedRequest, res: Response, ne
     const { userId } = req
     const { roomId } = req.body
 
+    if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
+
 try {
 
     const booking = await bookingService.postBooking(parseFloat(roomId), userId)
@@ -40,11 +42,11 @@ const { userId } = req
 const { roomId } = req.body
 const { bookingId } = req.params
 
-if (!roomId) res.sendStatus(httpStatus.BAD_REQUEST)
+if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
 
 try{
 
-    const updated = await bookingService.putBooking(userId, (bookingId), parseInt(roomId))
+    const updated = await bookingService.putBooking(userId, bookingId, parseInt(roomId))
 
     return res.sendStatus(httpStatus.OK).send({bookingId: updated})
 

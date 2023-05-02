@@ -1,10 +1,10 @@
 import { BookingError, notFoundError } from "@/errors"
 import getBookingRepository from "@/repositories/booking-repository";
 import hotelsService from "../hotels-service";
+import { Room } from "@prisma/client"
 
 
-
-async function getBooking (userId: number) {
+async function getBooking (userId: number): Promise<{Room: Room, id: number}> {
 
 const booking = await getBookingRepository.getBooking(userId)
 
@@ -13,7 +13,7 @@ if (!booking) throw notFoundError()
 return booking;
 }
 
-async function viabilityOfRooms (roomId: number) {
+async function viabilityOfRooms (roomId: number): Promise<Room> {
 
 const findRooms = await getBookingRepository.findRoom(roomId)
 
