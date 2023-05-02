@@ -23,7 +23,7 @@ export async function postBooking ( req: AuthenticatedRequest, res: Response, ne
     const { userId } = req
     const { roomId } = req.body
 
-    if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
+
 
 try {
 
@@ -33,6 +33,8 @@ try {
     return res.status(httpStatus.OK).send(booking)
 
 } catch (error) {
+    if (error.name === 'UnauthorizedError') {
+        return res.sendStatus(httpStatus.UNAUTHORIZED)}
     next(error)
 }
 }
@@ -43,7 +45,7 @@ const { userId } = req
 const { roomId } = req.body
 const { bookingId } = req.params
 
-if (!roomId) return res.sendStatus(httpStatus.BAD_REQUEST)
+
 
 try{
 
@@ -53,6 +55,8 @@ try{
     return res.sendStatus(httpStatus.OK).send(updated)
 
 } catch (error) {
+    if (error.name === 'UnauthorizedError') {
+        return res.sendStatus(httpStatus.UNAUTHORIZED)}
     next(error)
 }
 

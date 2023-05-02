@@ -59,10 +59,10 @@ describe('When token is valid', () => {
     const room = await createRoomWithHotelId(hotel.id);
     const booking = await createBooking(user.id, room.id);
 
-    const result = await server.get('/booking').set('Authorization', `Bearer ${token}`);
+    const response = await server.get('/booking').set('Authorization', `Bearer ${token}`);
 
-    expect(result.status).toBe(httpStatus.OK);
-    expect(result.body).toEqual({
+    expect(response.status).toBe(httpStatus.OK);
+    expect(response.body).toEqual({
       id: booking.id,
       Room: {
         id: room.id,
@@ -131,8 +131,36 @@ describe('When token is valid', () => {
     });
   });
 
+  it('Should respond with status 404 if user does not have an enrollment', async () => {
+    const token = await generateValidToken();
+    const result = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 1 });
+
+    expect(result.status).toBe(httpStatus.NOT_FOUND);
+  });
+
+  it('Should respond with status 400 when roomId is missing', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+
+    const result = await server.post('/booking').set('Authorization', `Bearer ${token}`);
+
+    expect(result.status).toBe(httpStatus.BAD_REQUEST);
+  });
 
 
+  it('should respond with status 404 if user does not have a ticket', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    await createEnrollmentWithAddress(user);
+
+    const response = await server.post('/booking').set('Authorization', `Bearer ${token}`).send({ roomId: 1 });
+
+    expect(response.status).toBe(httpStatus.NOT_FOUND);
+
+
+
+
+})
 
 
 })

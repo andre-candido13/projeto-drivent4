@@ -4,24 +4,32 @@ import enrollmentRepository from "@/repositories/enrollment-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
 
 
-async function viabilityOfRooms (userId: number){
+//async function viabilityOfRooms (userId: number){
 
-    const enrollment = await enrollmentRepository.findEnrollment(userId);
-    if (!enrollment) throw notFoundError();
+    //const enrollment = await enrollmentRepository.findEnrollment(userId);
+    //if (!enrollment) throw notFoundError();
   
-    const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-    if (!ticket) throw notFoundError();
+    //const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+   // if (!ticket) throw notFoundError();
   
-    if (!ticket.TicketType.includesHotel || ticket.status !== 'PAID' || ticket.TicketType.isRemote)
-      throw forbiddenError();
+   // if (!ticket.TicketType.includesHotel || ticket.status !== 'PAID' || ticket.TicketType.isRemote)
+     // throw forbiddenError();
   
-    return;
-  }
+    //return;
+  //}
 
 
 async function getBooking (userId: number){
 
-await viabilityOfRooms(userId)
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+    throw forbiddenError();
+  }
     
 const booking = await getBookingRepository.getBooking(userId);
 if (!booking) throw notFoundError();
@@ -33,7 +41,15 @@ return booking;
 
 async function postBooking (userId: number, roomId: number) {
 
-await viabilityOfRooms(userId)
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+    throw forbiddenError();
+  }
 
 const room = await getBookingRepository.findRoom(roomId);
 if (!room) throw notFoundError();
@@ -53,7 +69,15 @@ return bookingId;
 
 async function putBooking (userId: number, roomId: number, bookingId: number) {
 
-await viabilityOfRooms(userId)
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) {
+    throw notFoundError();
+  }
+
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+    throw forbiddenError();
+  }
 
 const room = await getBookingRepository.findRoom(roomId)
 
@@ -74,7 +98,7 @@ return response
 const bookingService = {
     getBooking,
     postBooking,
-    viabilityOfRooms,
+    //viabilityOfRooms,
     putBooking
 }
 
