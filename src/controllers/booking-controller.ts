@@ -5,6 +5,7 @@ import bookingService from "@/services/booking-service";
 import { Response } from "express";
 
 
+
 export async function getBooking ( req: AuthenticatedRequest, res: Response, next: NextFunction) {
 
 const { userId } = req
@@ -31,6 +32,28 @@ try {
 } catch (error) {
     next(error)
 }
+}
+
+export async function putBooking (req: AuthenticatedRequest, res: Response, next: NextFunction) {
+
+const { userId } = req
+const { roomId } = req.body
+const { bookingId } = req.params
+
+if (!roomId) res.sendStatus(httpStatus.BAD_REQUEST)
+
+try{
+
+    const updated = await bookingService.putBooking(userId, (bookingId), parseInt(roomId))
+
+    return res.sendStatus(httpStatus.OK).send({bookingId: updated})
+
+} catch (error) {
+    next(error)
+}
+
+
+
 }
 
 

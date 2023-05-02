@@ -41,19 +41,28 @@ return returnBooking;
 }
 
 
+async function putBooking (userId: number, bookingId: string, roomId: number) {
+
+const idBooking = Number(bookingId)
+
+await viabilityOfRooms(roomId)
+
+const user = getBookingRepository.getBooking(userId)
+
+if (!user) throw BookingError()
+
+return await getBookingRepository.updateBooking(roomId, idBooking, userId)
 
 
 
-
-
-
-
+}
 
 
 const bookingService = {
     getBooking,
     postBooking,
-    viabilityOfRooms
+    viabilityOfRooms,
+    putBooking
 }
 
 export default bookingService;
